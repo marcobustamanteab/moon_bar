@@ -1,0 +1,49 @@
+# Backend - Python/Django
+backend/**/*.py[cod]
+backend/**/__pycache__/
+backend/**/*.so
+backend/**/*.egg
+backend/**/*.egg-info/
+backend/dist/
+backend/build/
+backend/eggs/
+backend/.eggs/
+
+# Virtual Environment
+backend/barenv/
+backend/venv/
+backend/.env
+
+# Django specific
+backend/**/*.log
+backend/**/*.pot
+backend/db.sqlite3
+backend/db.sqlite3-journal
+backend/media/
+
+# Logs
+backend/logs/
+backend/**/*.log
+backend/**/npm-debug.log*
+backend/**/yarn-debug.log*
+backend/**/yarn-error.log*
+backend/**/lerna-debug.log*
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+**/.history
+**/.DS_Store
+
+# Frontend (añadir según necesites)
+front/node_modules/
+front/dist/
+front/build/
+front/.env
+front/.env.local
+front/.env.development.local
+front/.env.test.local
+front/.env.production.local
