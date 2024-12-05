@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { AxiosError } from 'axios';
+import { Moon } from 'lucide-react';
 import {
   MDBBtn,
   MDBContainer,
@@ -9,21 +10,32 @@ import {
   MDBCol,
   MDBInput
 } from 'mdb-react-ui-kit';
+import { useLoading } from '../../context/LoadingContext';
 import '../../assets/styles/components/login.css';
 
-function Login() {
+interface FormEvent extends React.FormEvent<HTMLFormElement> {
+  preventDefault(): void;
+}
+
+interface InputEvent extends React.ChangeEvent<HTMLInputElement> {
+  target: HTMLInputElement;
+}
+
+const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { setLoading } = useLoading();
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
-    
+    setIsSubmitting(true);
+    setLoading(true); // Activar el loading global
+
     try {
       await login({ username, password });
       navigate('/');
@@ -34,79 +46,96 @@ function Login() {
         setError('Error inesperado');
       }
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
+      setLoading(false); // Desactivar el loading global
     }
   };
 
+  const handleUsernameChange = (e: InputEvent) => {
+    setUsername(e.target.value);
+  };
+
+  const handlePasswordChange = (e: InputEvent) => {
+    setPassword(e.target.value);
+  };
+
   return (
-    <MDBContainer className="my-5 gradient-form">
-      <MDBRow>
-        <MDBCol col='6' className="mb-5">
-          <div className="d-flex flex-column ms-5">
-            <div className="text-center">
-              <img 
-                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/lotus.webp"
-                style={{width: '185px'}} 
-                alt="logo" 
-              />
-              <h4 className="mt-1 mb-5 pb-1">We are The Lotus Team</h4>
-            </div>
-
-            <form onSubmit={handleSubmit}>
-              {error && (
-                <div className="alert alert-danger" role="alert">
-                  {error}
+    <MDBContainer fluid className="gradient-form">
+      <div className="login-container">
+        <MDBRow className="h-100">
+          <MDBCol col='6'>
+            <div className="login-form-container">
+              <div className="text-center">
+                <div className="logo-container">
+                  <Moon size={30} color="white" />
                 </div>
-              )}
-              
-              <MDBInput 
-                wrapperClass='mb-4' 
-                label='Usuario'
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                disabled={loading}
-                required
-              />
-              
-              <MDBInput 
-                wrapperClass='mb-4' 
-                label='Contraseña'
-                type='password'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-                required
-              />
-
-              <div className="text-center pt-1 mb-5 pb-1">
-                <MDBBtn 
-                  className="mb-4 w-100 gradient-custom-2" 
-                  type="submit"
-                  disabled={loading}
-                >
-                  {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-                </MDBBtn>
-                <a className="text-muted" href="#!">¿Olvidaste tu contraseña?</a>
+                <h2 className="form-heading">Moon Bar</h2>
+                <p className="form-subheading">Tu espacio bajo la luz de la luna</p>
               </div>
-            </form>
-          </div>
-        </MDBCol>
 
-        <MDBCol col='6' className="mb-5">
-          <div className="d-flex flex-column justify-content-center gradient-custom-2 h-100 mb-4">
-            <div className="text-white px-3 py-4 p-md-5 mx-md-4">
-              <h4 className="mb-4">Somos más que una compañía</h4>
+              <form onSubmit={handleSubmit} className="form-content">
+                <div className="error-container">
+                  {error && (
+                    <div className="error-message">
+                      {error}
+                    </div>
+                  )}
+                </div>
+
+                <div className="inputs-container">
+                  <MDBInput
+                    wrapperClass='mb-4'
+                    label='Usuario'
+                    value={username}
+                    onChange={handleUsernameChange}
+                    disabled={isSubmitting}
+                    required
+                    className="input-field"
+                    contrast
+                  />
+
+                  <MDBInput
+                    wrapperClass='mb-4'
+                    label='Contraseña'
+                    type='password'
+                    value={password}
+                    onChange={handlePasswordChange}
+                    disabled={isSubmitting}
+                    required
+                    className="input-field"
+                    contrast
+                  />
+                </div>
+
+                <div className="button-container">
+                  <MDBBtn
+                    className="login-button"
+                    type="submit"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Iniciando sesión...' : 'Ingresar'}
+                  </MDBBtn>
+                  <a className="forgot-password" href="#!">
+                    ¿Olvidaste tu contraseña?
+                  </a>
+                </div>
+              </form>
+            </div>
+          </MDBCol>
+
+          <MDBCol col='6'>
+            <div className="side-content">
+              <h4 className="mb-4">Bienvenido a Moon Bar</h4>
               <p className="small mb-0">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                Descubre un espacio único bajo la luz de la luna. Donde cada noche 
+                es una experiencia memorable y cada momento cuenta una historia.
               </p>
             </div>
-          </div>
-        </MDBCol>
-      </MDBRow>
+          </MDBCol>
+        </MDBRow>
+      </div>
     </MDBContainer>
   );
-}
+};
 
 export default Login;
