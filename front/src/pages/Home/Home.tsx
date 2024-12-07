@@ -1,15 +1,14 @@
 import { MetricCard, SimpleCard } from "../../components/common/DivCard";
-import { useAuth } from "../../context/AuthContext";
+// import { useAuth } from "../../context/AuthContext";
 import { DollarSign, Utensils, ClipboardList, UserCircle } from "lucide-react";
 
 export const Home = () => {
-  const { user } = useAuth();
   const date = new Date().toLocaleDateString();
 
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-4">
-        Bienvenido {user?.username} a Mi Aplicación
+        Métricas
       </h1>
 
       {/* Primera fila: MetricCards */}

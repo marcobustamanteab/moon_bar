@@ -12,7 +12,8 @@ import "./assets/styles/global.css";
 import { useAuth } from "./context/AuthContext";
 import Login from "./components/auth/login";
 import { Home } from "./pages/Home/Home";
-
+import UserProfile from "./components/users/UserProfile";
+import ChangePassword from "./components/users/ChangePassword";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -33,6 +34,8 @@ function App() {
           >
             <Route index element={<Home />} />
             <Route path="users" element={<UserList />} />
+            <Route path="users/profile" element={<UserProfile />} />
+            <Route path="users/change-password" element={<ChangePassword />} />
             <Route path="admin_site" element={<UserList />} />
           </Route>
         </Routes>

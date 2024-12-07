@@ -1,24 +1,160 @@
+/* Sidebar Base Styles */
 .custom-sidebar {
-    background-color: rgb(63, 72, 80);
-    color: rgb(212, 16, 16);
+  background-color: #343a40;
+  color: #c2c7d0;
 }
 
-.custom-sidebar .nav-link {
-    color: rgb(204, 200, 200) !important; 
-    padding: 5px 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-  }
+/* Brand Section */
+.brand-section {
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 57px;
+  background-color: #343a40;
+}
 
-  .custom-sidebar .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
-  }
-  
-  /* Link activo */
-  .custom-sidebar .nav-link.active {
-    background-color: rgba(0, 0, 0, 0.2) !important;
-    color: rgb(255, 255, 255) !important;
-  }
-  
+.brand-icon {
+  color: #c2c7d0;
+}
+
+.brand-text {
+  color: #c2c7d0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Separators */
+.sidebar-separator {
+  height: 1px;
+  background-color: #4b545c;
+  margin: 0;
+}
+
+/* User Section */
+.user-section {
+  padding: 15px;
+  background-color: #343a40;
+}
+
+.user-info-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.user-info-collapsed {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #4b545c;
+}
+
+.user-details-horizontal {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.user-name {
+  color: #c2c7d0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.user-role {
+  color: #8f9ba6;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+/* DateTime section */
+.datetime-info {
+  font-size: 12px;
+  color: #8f9ba6;
+  margin-top: 5px;
+}
+
+.time {
+  color: #c2c7d0;
+  font-size: 14px;
+  font-family: 'Source Sans Pro', sans-serif;
+  margin-top: 2px;
+}
+
+.date {
+  color: #8f9ba6;
+}
+
+/* Nav Links */
+.nav-link {
+  color: #c2c7d0 !important;
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease-in-out;
+  border-radius: 4px;
+  margin: 2px 8px;
+}
+
+.nav-link:hover {
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff !important;
+}
+
+/* Icons in nav links */
+.nav-link svg {
+  width: 20px;
+  height: 20px;
+  color: #c2c7d0;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover svg {
+  color: #fff;
+}
+
+.nav-link.active svg {
+  color: #fff;
+}
+
+/* Submenu styles */
+.nav-item-container {
+  background-color: #343a40;
+  margin: 2px 0;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Nav Link with submenu */
+.nav-link-with-submenu {
+  justify-content: space-between;
+}
+
+/* Submenu container */
+.submenu {
+  background-color: #2c3136;
+  margin-left: 2.5rem;
+}
+
+.submenu .nav-link {
+  padding-left: 1rem;
+  margin-left: 2rem;
+}

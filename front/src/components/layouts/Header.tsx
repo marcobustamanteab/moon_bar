@@ -28,7 +28,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
         >
           ☰
         </Button>
-        <Navbar.Brand className="text-white">MoonBar</Navbar.Brand>
+        <Navbar.Brand className="text-white"></Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">{/* Tus links actuales */}</Nav>
