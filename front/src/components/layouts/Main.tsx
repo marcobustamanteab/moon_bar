@@ -1,4 +1,3 @@
-// components/layouts/Main.tsx
 import { Outlet } from 'react-router-dom';
 import { useState } from 'react';
 import Header from './Header';
@@ -16,7 +15,7 @@ const MainLayout = () => {
   const menuItems = [
     { path: '/', name: 'Inicio', icon: '🏠' },
     { path: '/users', name: 'Usuarios', icon: '👥' },
-    { path: '/login', name: 'Configuración', icon: '⚙️' }
+    { path: '/admin_site', name: 'Administración', icon: '⚙️' }
   ];
 
   return (

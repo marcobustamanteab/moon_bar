@@ -1,0 +1,104 @@
+.custom-card {
+    height: 100%;
+    min-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .custom-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+  
+  .custom-card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding: 1rem 1.25rem;
+  }
+  
+  .custom-card-body {
+    padding: 1.25rem;
+  }
+  
+  .custom-card-footer {
+    background-color: transparent;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding: 0.75rem 1.25rem;
+  }
+  
+  /* Metric Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .metric-card {
+    border: none;
+    border-radius: 12px;
+    height: 140px;
+  }
+  
+  .metric-card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    height: 100%;
+  }
+  
+  .metric-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .metric-card-title {
+    color: rgba(0,0,0,0.6);
+    margin: 0;
+    font-size: 0.875rem;
+  }
+  
+  .metric-card-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .metric-card-icon {
+    font-size: 2rem;
+    opacity: 0.8;
+  }
+  
+  .metric-card-change {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .metric-card-change.increase {
+    color: #28a745;
+  }
+  
+  .metric-card-change.decrease {
+    color: #dc3545;
+  }
+  
+  /* Variant styles */
+  .metric-card-primary {
+    background: linear-gradient(135deg, #007bff20 0%, #007bff10 100%);
+  }
+  
+  .metric-card-success {
+    background: linear-gradient(135deg, #28a74520 0%, #28a74510 100%);
+  }
+  
+  .metric-card-warning {
+    background: linear-gradient(135deg, #ffc10720 0%, #ffc10710 100%);
+  }
+  
+  .metric-card-danger {
+    background: linear-gradient(135deg, #dc354520 0%, #dc354510 100%);
+  }
+
+  
