@@ -1,0 +1,132 @@
+/* Contenedor principal */
+.custom-datatable-container {
+    background: white;
+    padding: 0;
+    width: 100%;
+    overflow-x: auto;
+  }
+  
+  /* Estilos de la tabla */
+  .rdt_TableHead, .rdt_TableBody, .rdt_Pagination {
+    padding: 0 1rem;
+  }
+  
+  .rdt_TableCol, .rdt_TableCell {
+    min-width: unset !important;
+    white-space: normal !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Anchos específicos para columnas */
+  .rdt_TableCol:nth-child(1), 
+  .rdt_TableCell:nth-child(1) {
+    width: 60px !important;  /* ID */
+  }
+  
+  .rdt_TableCol:nth-child(2), 
+  .rdt_TableCell:nth-child(2) {
+    width: 120px !important;  /* Usuario */
+  }
+  
+  .rdt_TableCol:nth-child(3), 
+  .rdt_TableCell:nth-child(3) {
+    width: 280px !important;  /* Nombre */
+  }
+  
+  .rdt_TableCol:nth-child(4), 
+  .rdt_TableCell:nth-child(4) {
+    width: 120px !important;  /* Perfil */
+  }
+  
+  .rdt_TableCol:nth-child(5), 
+  .rdt_TableCell:nth-child(5) {
+    width: 180px !important;  /* Email */
+  }
+  
+  .rdt_TableCol:nth-child(6), 
+  .rdt_TableCell:nth-child(6) {
+    width: 160px !important;  /* Fecha Creación */
+  }
+  
+  .rdt_TableCol:nth-child(7), 
+  .rdt_TableCell:nth-child(7) {
+    width: 100px !important;  /* Estado */
+  }
+  
+  .rdt_TableCol:nth-child(8), 
+  .rdt_TableCell:nth-child(8) {
+    width: 110px !important;  /* Acciones */
+  }
+  
+  /* Estilos del SubHeader */
+  .rdt_SubHeader {
+    margin: 0 !important;
+    padding: 0.5rem 1rem !important;
+    min-height: 48px !important;
+  }
+  
+  /* Estilos del input de búsqueda */
+  .custom-datatable-container .form-control {
+    height: 36px;
+    font-size: 0.875rem;
+    width: 300px;
+  }
+  
+  /* Estilos de paginación */
+  .rdt_Pagination {
+    font-size: 0.875rem;
+    border-top: 1px solid #e9ecef;
+  }
+  
+  .rdt_Pagination button {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    margin: 0 4px;
+    border-radius: 4px;
+  }
+  
+  /* Estilos del botón primario */
+  .btn-primary {
+    height: 36px;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Animación del spinner */
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Ajustes responsivos */
+  @media screen and (max-width: 1366px) {
+    .rdt_TableCol, .rdt_TableCell {
+      padding: 0.5rem !important;
+    }
+    
+    .rdt_TableCell {
+      font-size: 0.8rem;
+    }
+  
+    /* Ajustes de ancho para pantallas más pequeñas */
+    .rdt_TableCol:nth-child(3), 
+    .rdt_TableCell:nth-child(3) {
+      width: 220px !important;  /* Nombre más compacto */
+    }
+  
+    .rdt_TableCol:nth-child(5), 
+    .rdt_TableCell:nth-child(5) {
+      width: 150px !important;  /* Email más compacto */
+    }
+  
+    .rdt_TableCol:nth-child(6), 
+    .rdt_TableCell:nth-child(6) {
+      width: 140px !important;  /* Fecha más compacta */
+    }
+  }

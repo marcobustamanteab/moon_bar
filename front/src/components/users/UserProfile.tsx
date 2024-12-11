@@ -20,19 +20,18 @@ const UserProfile = () => {
     year: "numeric",
     month: "long",
     day: "numeric",
-  });
+  });                                                                                                                     
 
   return (
     <div className="p-4">
-      <div className="d-flex align-items-center mb-4">
+      {/* <div className="d-flex align-items-center mb-4">
         <h2
           className="mb-0"
           style={{ color: "#2d3564", fontSize: "1.75rem", fontWeight: "600" }}
         >
           Mi Perfil
         </h2>
-      </div>
-
+      </div> */}
       <div className="row g-4">
         {/* Columna izquierda */}
         <div className="col-12 col-md-3">

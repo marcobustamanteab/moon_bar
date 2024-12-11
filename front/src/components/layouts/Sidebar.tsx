@@ -3,11 +3,13 @@ import { Nav } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import SidebarHeader from "./SidebarHeader";
+import { useAuth } from "../../context/AuthContext";
 
 interface SubMenuItem {
   path: string;
   name: string;
   icon?: React.ReactNode;
+  adminOnly?: boolean;
 }
 
 interface MenuItem {
@@ -24,7 +26,16 @@ interface SidebarProps {
 
 const Sidebar = ({ menuItems, expanded }: SidebarProps) => {
   const location = useLocation();
+  const { user } = useAuth();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  
+  const isAdmin = user?.groups?.includes("Administrador");
+
+  const filterAdminItems = (items: SubMenuItem[]) => {
+    return items.filter(
+      (item) => !item.adminOnly || (item.adminOnly && isAdmin)
+    );
+  };
 
   const toggleSubmenu = (path: string) => {
     setExpandedItems((prev) =>
@@ -65,23 +76,25 @@ const Sidebar = ({ menuItems, expanded }: SidebarProps) => {
                 </div>
 
                 {/* Submenú */}
-                {expandedItems.includes(item.path) && expanded && (
-                  <Nav className="flex-column ms-3">
-                    {item.subItems.map((subItem) => (
-                      <Nav.Link
-                        key={subItem.path}
-                        as={Link}
-                        to={subItem.path}
-                        className={`nav-link ${
-                          isActive(subItem.path) ? "active" : ""
-                        }`}
-                      >
-                        {subItem.icon}
-                        <span className="ms-2">{subItem.name}</span>
-                      </Nav.Link>
-                    ))}
-                  </Nav>
-                )}
+                {item.subItems &&
+                  expandedItems.includes(item.path) &&
+                  expanded && (
+                    <Nav className="flex-column ms-3">
+                      {filterAdminItems(item.subItems).map((subItem) => (
+                        <Nav.Link
+                          key={subItem.path}
+                          as={Link}
+                          to={subItem.path}
+                          className={`nav-link ${
+                            isActive(subItem.path) ? "active" : ""
+                          }`}
+                        >
+                          {subItem.icon}
+                          <span className="ms-2">{subItem.name}</span>
+                        </Nav.Link>
+                      ))}
+                    </Nav>
+                  )}
               </>
             ) : (
               // Menú simple sin subítems

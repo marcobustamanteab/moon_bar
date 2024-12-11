@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Users, Settings, User, Key } from 'lucide-react';
+import { Home, Users, Settings, User, Key, UserPlus } from 'lucide-react';
 import '../../assets/styles/components/breadcrumb.css';
 
 interface RouteConfig {
@@ -44,6 +44,14 @@ const Breadcrumb: React.FC = () => {
       '/change-password': {
         name: 'Editar Contraseña',
         icon: <Key size={16} className="breadcrumb-icon" />
+      },
+      '/manage': {  // Agregamos la nueva subruta
+        name: 'Gestión de Usuarios',
+        icon: <Settings size={16} className="breadcrumb-icon" />
+      },
+      '/create': {
+        name: 'Crear Usuario',
+        icon: <UserPlus size={16} className="breadcrumb-icon" />
       }
     }
   };
