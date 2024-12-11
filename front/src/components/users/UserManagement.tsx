@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo  } from "react";
 import { User } from "../../interfaces/user.interface";
 import { UserAPI } from "../../api/endpoints/users";
 import { useLoading } from "../../context/LoadingContext";
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2, UserPlus } from "lucide-react";
 import CustomDataTable from "../common/CustomDataTable";
 import { TableColumn } from "react-data-table-component";
 import { Toast, Modal, Button } from "react-bootstrap";
@@ -21,6 +21,30 @@ const UserManagement: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "danger">("success");
+  const [searchTerm, setSearchTerm] = useState<string>("")
+
+
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      if (!searchTerm) return true;
+      
+      const searchValue = searchTerm.toLowerCase();
+      const userGroups = user.groups || [];
+      
+      return (
+        user.id.toString().includes(searchValue) ||
+        user.username.toLowerCase().includes(searchValue) ||
+        user.first_name.toLowerCase().includes(searchValue) ||
+        user.last_name.toLowerCase().includes(searchValue) ||
+        user.email.toLowerCase().includes(searchValue) ||
+        userGroups.some(group => group.toLowerCase().includes(searchValue))
+      );
+    });
+  }, [users, searchTerm]);
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
 
   const handleDeleteClick = (userId: number) => {
     setUserToDelete(userId);
@@ -178,13 +202,15 @@ const UserManagement: React.FC = () => {
 
       <CustomDataTable
         columns={columns}
-        data={users}
+        data={filteredUsers}
         loading={false}
         pagination
         searchable
+        onSearch={handleSearch}
         actions={
           <button className="btn btn-primary" onClick={handleCreateUser}>
-            Nuevo Usuario
+            <UserPlus size={16} />
+                      Nuevo Usuario
           </button>
         }
       />

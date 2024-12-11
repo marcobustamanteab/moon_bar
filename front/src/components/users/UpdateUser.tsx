@@ -2,62 +2,64 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { UserAPI } from "../../api/endpoints";
-import { Group, User } from "../../interfaces";
+import { Group, PartialUser, User } from "../../interfaces";
+import { ArrowLeft, Save } from "lucide-react";
 
 interface ApiError {
-    response?: {
-      data: {
-        [key: string]: string | string[];
-      };
-      status?: number;
+  response?: {
+    data: {
+      [key: string]: string | string[];
     };
-    message: string;
-  }
+    status?: number;
+  };
+  message: string;
+}
 
 const UpdateUser: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [user, setUser] = useState<Partial<User>>({});
+  const [user, setUser] = useState<PartialUser>({});
   const [errors, setErrors] = useState<Partial<User>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState<string>("");
+  //   const [selectedGroup, setSelectedGroup] = useState<string>("");
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [userData, groupsData] = await Promise.all([
           UserAPI.getById(Number(id)),
-          UserAPI.getGroups()
+          UserAPI.getGroups(),
         ]);
-        
-        // Eliminamos password directamente del objeto
-        delete userData.password;
-        setUser(userData);
+
+        const { password, ...userWithoutPassword } = userData;
+        setUser(userWithoutPassword);
         setGroups(groupsData);
-        
-        if (userData.groups && userData.groups.length > 0) {
+
+        if (userData.groups) {
           setSelectedGroup(userData.groups[0]);
         }
       } catch (error) {
         console.error("Error al cargar datos:", error);
       }
     };
-  
+
     fetchData();
   }, [id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setUser(prev => ({ ...prev, [name]: value }));
+    setUser((prev) => ({ ...prev, [name]: value }));
     // Limpiar error específico cuando el usuario empieza a escribir
-    setErrors(prev => ({ ...prev, [name]: "" }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const validate = () => {
-    const newErrors: {[key: string]: string} = {};
+    const newErrors: { [key: string]: string } = {};
 
-    if (!user.username) newErrors.username = "El nombre de usuario es requerido";
+    if (!user.username)
+      newErrors.username = "El nombre de usuario es requerido";
     if (!user.email) newErrors.email = "El email es requerido";
     if (!user.first_name) newErrors.first_name = "El nombre es requerido";
     if (!user.last_name) newErrors.last_name = "El apellido es requerido";
@@ -78,9 +80,9 @@ const UpdateUser: React.FC = () => {
       try {
         const dataToSend = {
           ...user,
-          groups: selectedGroup ? [selectedGroup] : []
+          groups: selectedGroup ? [selectedGroup] : [],
         };
-        
+
         if (!dataToSend.password) {
           delete dataToSend.password;
         }
@@ -95,15 +97,17 @@ const UpdateUser: React.FC = () => {
         });
       } catch (error: unknown) {
         const apiError = error as ApiError;
-        
+
         if (apiError.response?.data) {
           const backendErrors = apiError.response.data;
-          const newErrors: {[key: string]: string} = {};
-          
+          const newErrors: { [key: string]: string } = {};
+
           Object.entries(backendErrors).forEach(([key, value]) => {
-            newErrors[key] = Array.isArray(value) ? value[0] : value as string;
+            newErrors[key] = Array.isArray(value)
+              ? value[0]
+              : (value as string);
           });
-          
+
           setErrors(newErrors);
         }
       }
@@ -138,12 +142,12 @@ const UpdateUser: React.FC = () => {
           <select
             className="form-select"
             id="group"
-            value={selectedGroup}
-            onChange={(e) => setSelectedGroup(e.target.value)}
+            value={selectedGroup || ""}
+            onChange={(e) => setSelectedGroup(Number(e.target.value))}
           >
             <option value="">Seleccionar grupo</option>
             {groups.map((group) => (
-              <option key={group.id} value={group.name}>
+              <option key={group.id} value={group.id}>
                 {group.name}
               </option>
             ))}
@@ -213,13 +217,25 @@ const UpdateUser: React.FC = () => {
             <div className="invalid-feedback">{errors.password}</div>
           )}
         </div>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Guardando..." : "Guardar Cambios"}
-        </button>
+        <div className="d-flex gap-2">
+          <button
+            type="submit"
+            className="btn btn-primary d-flex align-items-center gap-2"
+            disabled={isSubmitting}
+          >
+            <Save size={16} />
+            {isSubmitting ? "Guardando..." : "Guardar Cambios"}
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-secondary d-flex align-items-center gap-2"
+            onClick={() => navigate("/users/manage")}
+          >
+            <ArrowLeft size={16} />
+            Volver
+          </button>
+        </div>
       </form>
     </div>
   );

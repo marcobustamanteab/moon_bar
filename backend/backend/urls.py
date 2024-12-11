@@ -24,6 +24,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView
 )
 
+
 @api_view(['GET'])
 def test_endpoint(request):
     return Response({

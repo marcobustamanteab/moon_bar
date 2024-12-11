@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAPI } from "../../api/endpoints";
 import { Group, User } from "../../interfaces";
+import { ArrowLeft, UserPlus } from "lucide-react";
 
 const CreateUser: React.FC = () => {
   const navigate = useNavigate();
@@ -32,26 +33,25 @@ const CreateUser: React.FC = () => {
     fetchGroups();
   }, []);
 
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setUser(prev => ({
+    setUser((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    setErrors(prev => ({ ...prev, [name]: "" }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleGroupChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value ? parseInt(e.target.value) : null;
     setSelectedGroup(value);
-    setErrors(prev => ({ ...prev, groups: "" }));
+    setErrors((prev) => ({ ...prev, groups: "" }));
   };
 
   const validate = () => {
-    const newErrors: {[key: string]: string} = {};
+    const newErrors: { [key: string]: string } = {};
 
     if (!user.username) {
       newErrors.username = "El nombre de usuario es requerido";
@@ -89,7 +89,7 @@ const CreateUser: React.FC = () => {
           password: user.password,
           first_name: user.first_name,
           last_name: user.last_name,
-          groups: selectedGroup ? [selectedGroup] : []
+          groups: selectedGroup ? [selectedGroup] : [],
         };
 
         await UserAPI.create(dataToSend);
@@ -225,13 +225,25 @@ const CreateUser: React.FC = () => {
           )}
         </div>
 
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Creando..." : "Crear Usuario"}
-        </button>
+        <div className="d-flex gap-2">
+          <button
+            type="submit"
+            className="btn btn-primary d-flex align-items-center gap-2"
+            disabled={isSubmitting}
+          >
+            <UserPlus size={16} />
+            {isSubmitting ? "Creando..." : "Crear Usuario"}
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-secondary d-flex align-items-center gap-2"
+            onClick={() => navigate("/users/manage")}
+          >
+            <ArrowLeft size={16} />
+            Volver
+          </button>
+        </div>
       </form>
     </div>
   );

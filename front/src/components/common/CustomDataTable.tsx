@@ -11,6 +11,7 @@ interface DataTableProps<T> {
   searchable?: boolean;
   title?: string;
   actions?: React.ReactNode;
+  onSearch?: (term: string) => void;
 }
 
 const customStyles: TableStyles = {
@@ -82,6 +83,7 @@ function CustomDataTable<T>({
   loading = false,
   pagination = true,
   searchable = true,
+  onSearch,
 //   title,
   actions
 }: DataTableProps<T>) {
@@ -106,6 +108,7 @@ function CustomDataTable<T>({
             type="text"
             className="form-control"
             placeholder="Buscar..."
+            onChange={(e) => onSearch?.(e.target.value)}
             style={{ 
               height: '36px',
               fontSize: '0.875rem'

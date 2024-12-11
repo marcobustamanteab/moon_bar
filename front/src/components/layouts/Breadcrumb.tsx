@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Users, Settings, User, Key, UserPlus } from 'lucide-react';
+import { Home, Users, Settings, User, Key, UserPlus, Edit } from 'lucide-react';
 import '../../assets/styles/components/breadcrumb.css';
 
 interface RouteConfig {
@@ -45,14 +45,19 @@ const Breadcrumb: React.FC = () => {
         name: 'Editar Contraseña',
         icon: <Key size={16} className="breadcrumb-icon" />
       },
-      '/manage': {  // Agregamos la nueva subruta
+      '/manage': {  
         name: 'Gestión de Usuarios',
         icon: <Settings size={16} className="breadcrumb-icon" />
       },
       '/create': {
         name: 'Crear Usuario',
         icon: <UserPlus size={16} className="breadcrumb-icon" />
+      },
+      '/:id/update': {
+        name: 'Editar Usuario',
+        icon: <Edit size={16} className="breadcrumb-icon" />
       }
+
     }
   };
 
@@ -79,6 +84,19 @@ const Breadcrumb: React.FC = () => {
         {
           path: `${mainPath}${subPath}`,
           ...subRoutes[mainPath][subPath]
+        }
+      ];
+    }
+
+    if (pathSegments.length === 3 && pathSegments[2] === 'update') {
+      return [
+        {
+          path: mainPath,
+          ...mainRoutes[mainPath]
+        },
+        {
+          path: `${mainPath}/:id/update`,
+          ...subRoutes[mainPath]['/:id/update']
         }
       ];
     }
