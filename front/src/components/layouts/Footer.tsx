@@ -14,11 +14,12 @@ const Footer = ({ sidebarWidth }: FooterProps) => {
         right: 0,
         left: sidebarWidth,
         transition: 'left 0.3s ease',
-        zIndex: 1000
+        zIndex: 1000,
+        height: '50px'
       }}
     >
       <Container fluid>
-        <p className="mb-0 text-center">© 2024 Mi Aplicación - Todos los derechos reservados</p>
+        <p className="mb-0 text-center">© 2024 MoonBar - Todos los derechos reservados</p>
       </Container>
     </footer>
   );

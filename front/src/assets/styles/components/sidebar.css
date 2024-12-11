@@ -2,6 +2,7 @@
 .custom-sidebar {
   background-color: #343a40;
   color: #c2c7d0;
+  z-index: 1030;
 }
 
 /* Brand Section */
