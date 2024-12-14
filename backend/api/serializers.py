@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User, Group
+from .models import UserActivityLog
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -65,3 +66,21 @@ class UserSerializer(serializers.ModelSerializer):
     def get_groups(self, obj):
             return [group.name for group in obj.groups.all()]                                                           
         
+
+class UserActivityLogSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    
+    class Meta:
+        model = UserActivityLog
+        fields = ['id', 'username', 'activity_type', 'timestamp', 'details', 'ip_address']
+        read_only_fields = ['timestamp', 'ip_address']
+
+class GroupSerializer(serializers.ModelSerializer):
+    user_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Group
+        fields = ['id', 'name', 'user_count']
+
+    def get_user_count(self, obj):
+        return obj.user_set.count()

@@ -17,6 +17,8 @@ import ChangePassword from "./components/users/ChangePassword";
 import UserManagement from "./components/users/UserManagement";
 import CreateUser from "./components/users/CreateUser";
 import UpdateUser from "./components/users/UpdateUser";
+import UserActivityLog from "./components/users/LogUsers";
+import GroupManagement from "./components/users/GroupManagement";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -43,6 +45,9 @@ function App() {
             <Route path="users/manage" element={<UserManagement />} />
             <Route path="users/create" element={<CreateUser />} />
             <Route path="users/:id/update" element={<UpdateUser />} />
+            <Route path="/users/activity-log" element={<UserActivityLog />} />
+            <Route path="users/groups" element={<GroupManagement />}
+            />
           </Route>
         </Routes>
       </Router>
