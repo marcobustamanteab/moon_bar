@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Users, Settings, User, Key, UserPlus, Edit, Activity } from 'lucide-react';
+import { Home, Users, Settings, User, Key, UserPlus, Edit, Activity, Users2 } from 'lucide-react';
 import '../../assets/styles/components/breadcrumb.css';
 
 interface RouteConfig {
@@ -18,7 +18,6 @@ interface SubRouteConfig {
 const Breadcrumb: React.FC = () => {
   const location = useLocation();
   
-  // Mapeo de rutas principales con sus nombres e íconos
   const mainRoutes: { [key: string]: RouteConfig } = {
     '/': {
       name: 'Inicio',
@@ -33,8 +32,7 @@ const Breadcrumb: React.FC = () => {
       icon: <Settings size={16} className="breadcrumb-icon" />
     }
   };
-
-  // Mapeo de subrutas
+  
   const subRoutes: { [key: string]: SubRouteConfig } = {
     '/users': {
       '/profile': {
@@ -60,6 +58,10 @@ const Breadcrumb: React.FC = () => {
       '/activity-log': {
         name: 'Registro de Actividad',
         icon: <Activity size={16} className="breadcrumb-icon" />
+      },
+      '/groups': {
+        name: 'Grupos',
+        icon: <Users2 size={16} className="breadcrumb-icon" />
       }
 
     }
