@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Users, Settings, User, Key, UserPlus, Edit } from 'lucide-react';
+import { Home, Users, Settings, User, Key, UserPlus, Edit, Activity } from 'lucide-react';
 import '../../assets/styles/components/breadcrumb.css';
 
 interface RouteConfig {
@@ -56,6 +56,10 @@ const Breadcrumb: React.FC = () => {
       '/:id/update': {
         name: 'Editar Usuario',
         icon: <Edit size={16} className="breadcrumb-icon" />
+      },
+      '/activity-log': {
+        name: 'Registro de Actividad',
+        icon: <Activity size={16} className="breadcrumb-icon" />
       }
 
     }

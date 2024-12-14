@@ -5,7 +5,7 @@ import Footer from "./Footer";
 import Sidebar from "./Sidebar";
 import Breadcrumb from "./Breadcrumb";
 // import { Container } from 'react-bootstrap';
-import { Home, Users, Settings, User, Key } from "lucide-react";
+import { Home, Users, Settings, User, Key, Activity } from "lucide-react";
 import "../../assets/styles/components/header.css";
 import "../../assets/styles/components/sidebar.css";
 import "../../assets/styles/components/footer.css";
@@ -41,6 +41,18 @@ const MainLayout = () => {
           icon: <Settings size={20} />,
           adminOnly: true,
         },
+        {
+          path: '/users/groups',
+          name: 'Grupos',
+          icon: <Users size={20} />,
+          adminOnly: true
+        },
+        { 
+          path: '/users/activity-log', 
+          name: 'Registro de Actividad',
+          icon: <Activity size={20} />,
+          adminOnly: true,
+      }
       ],
     },
     {
@@ -48,6 +60,7 @@ const MainLayout = () => {
       name: "Administración",
       icon: <Settings size={20} />,
     },
+    
   ];
 
   return (
