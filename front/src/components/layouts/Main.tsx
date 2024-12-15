@@ -5,7 +5,7 @@ import Footer from "./Footer";
 import Sidebar from "./Sidebar";
 import Breadcrumb from "./Breadcrumb";
 // import { Container } from 'react-bootstrap';
-import { Home, Users, Settings, User, Key, Activity } from "lucide-react";
+import { Home, Users, Settings, User, Key, Activity, UserPlus, Grid, List, Package } from "lucide-react";
 import "../../assets/styles/components/header.css";
 import "../../assets/styles/components/sidebar.css";
 import "../../assets/styles/components/footer.css";
@@ -52,8 +52,33 @@ const MainLayout = () => {
           name: 'Registro de Actividad',
           icon: <Activity size={20} />,
           adminOnly: true,
-      }
+      }, 
+
       ],
+    },
+    { 
+      path: '/products', 
+      name: 'Productos', 
+      icon: <Package size={20} />,
+      subItems: [
+        {
+          path: '/products/create',
+          name: 'Crear Producto',
+          icon: <UserPlus size={20} />,
+          adminOnly: true
+        },
+        {
+          path: '/products/list',
+          name: 'Lista de Productos',
+          icon: <List size={20} />
+        },
+        {
+          path: '/products/categories',
+          name: 'Categorías',
+          icon: <Grid size={20} />,
+          adminOnly: true
+        },
+      ]
     },
     {
       path: "/admin_site",

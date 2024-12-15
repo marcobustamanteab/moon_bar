@@ -19,6 +19,10 @@ import CreateUser from "./components/users/CreateUser";
 import UpdateUser from "./components/users/UpdateUser";
 import UserActivityLog from "./components/users/LogUsers";
 import GroupManagement from "./components/users/GroupManagement";
+import ProductCategories from "./components/products/ProductCategories";
+import CreateProduct from "./components/products/CreateProduct";
+import UpdateProduct from "./components/products/UpdateProduct";
+import ProductList from "./components/products/ProductList";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -37,6 +41,7 @@ function App() {
               !isAuthenticated ? <Navigate to="/login" /> : <MainLayout />
             }
           >
+            
             <Route index element={<Home />} />
             <Route path="users" element={<UserList />} />
             <Route path="users/profile" element={<UserProfile />} />
@@ -45,9 +50,12 @@ function App() {
             <Route path="users/manage" element={<UserManagement />} />
             <Route path="users/create" element={<CreateUser />} />
             <Route path="users/:id/update" element={<UpdateUser />} />
-            <Route path="/users/activity-log" element={<UserActivityLog />} />
-            <Route path="users/groups" element={<GroupManagement />}
-            />
+            <Route path="users/activity-log" element={<UserActivityLog />} />
+            <Route path="users/groups" element={<GroupManagement />} />
+            <Route path="products/categories" element={<ProductCategories />} />
+            <Route path="products/create" element={<CreateProduct />} />
+            <Route path="products/:id/update" element={<UpdateProduct />} />
+            <Route path="products/list" element={<ProductList />} />
           </Route>
         </Routes>
       </Router>
