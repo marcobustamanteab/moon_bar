@@ -24,6 +24,9 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView
 )
 
+from backend import settings
+from django.conf.urls.static import static
+
 
 @api_view(['GET'])
 def test_endpoint(request):
@@ -46,3 +49,6 @@ urlpatterns = [
     path('api/', include('products.urls')),
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

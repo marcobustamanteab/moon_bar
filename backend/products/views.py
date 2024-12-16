@@ -11,16 +11,11 @@ from django.db.models import Q
 def category_list(request):
     if request.method == 'GET':
         categories = Category.objects.all()
-        serializer = CategorySerializer(categories, many=True)
+        serializer = CategorySerializer(categories, many=True, context={'request': request})
         return Response(serializer.data)
-    
+
     elif request.method == 'POST':
-        if not request.user.is_staff:
-            return Response(
-                {"detail": "No tienes permiso para realizar esta acción"},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        serializer = CategorySerializer(data=request.data)
+        serializer = CategorySerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -35,28 +30,17 @@ def category_detail(request, pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = CategorySerializer(category)
+        serializer = CategorySerializer(category, context={'request': request})
         return Response(serializer.data)
 
-    if not request.user.is_staff:
-        return Response(
-            {"detail": "No tienes permiso para realizar esta acción"},
-            status=status.HTTP_403_FORBIDDEN
-        )
-
-    if request.method == 'PUT':
-        serializer = CategorySerializer(category, data=request.data)
+    elif request.method == 'PUT':
+        serializer = CategorySerializer(category, data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        if category.products.exists():
-            return Response(
-                {"detail": "No se puede eliminar una categoría que tiene productos"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

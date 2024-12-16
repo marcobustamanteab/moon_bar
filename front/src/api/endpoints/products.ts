@@ -8,19 +8,26 @@ export const ProductAPI = {
     return response.data;
   },
 
-  createCategory: async (data: Partial<Category>) => {
-    const response = await api.post<Category>('/api/categories/', data);
+  createCategory: async (formData: FormData) => {
+    const response = await api.post('/api/categories/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 
-  updateCategory: async (id: number, data: Partial<Category>) => {
-    const response = await api.put<Category>(`/api/categories/${id}/`, data);
+  updateCategory: async (id: number, formData: FormData) => {
+    const response = await api.put(`/api/categories/${id}/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 
   deleteCategory: async (id: number) => {
-    const response = await api.delete(`/api/categories/${id}/`);
-    return response.data;
+    await api.delete(`/api/categories/${id}/`);
   },
 
   // Productos
