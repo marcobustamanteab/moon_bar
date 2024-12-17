@@ -26,6 +26,7 @@ from rest_framework_simplejwt.views import (
 
 from backend import settings
 from django.conf.urls.static import static
+from companies.views import CompanyTokenObtainPairView
 
 
 @api_view(['GET'])
@@ -42,12 +43,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/test/', test_endpoint),
     path('', include('api.urls')),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', CompanyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     #products
     path('api/', include('products.urls')),
-
+    #companies
+    path('api/', include('companies.urls')),
+    
 ]
 
 if settings.DEBUG:

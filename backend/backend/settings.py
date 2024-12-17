@@ -43,10 +43,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'api',
     'products',
+    'companies',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'companies.middleware.CompanyMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
