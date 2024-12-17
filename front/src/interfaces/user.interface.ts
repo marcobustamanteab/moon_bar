@@ -1,3 +1,4 @@
+import { Company } from "./company.interface";
 
 
 export interface User {
@@ -10,6 +11,8 @@ export interface User {
   is_active: boolean;
   date_joined: string;
   groups?: string[];
+  companies?: Company[];
+  is_superuser?: boolean;  
 }
 
 export interface Group {

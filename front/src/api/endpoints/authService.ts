@@ -1,8 +1,12 @@
+import { CompanyUser } from '../../interfaces/company.interface';
+import { User } from '../../interfaces/user.interface';
 import api from '../axios';
 
 interface LoginResponse {
   access: string;
   refresh: string;
+  user: User & { is_superuser:boolean };
+  companies: CompanyUser[];
 }
 
 interface LoginCredentials {

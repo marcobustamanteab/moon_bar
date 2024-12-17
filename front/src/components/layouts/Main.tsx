@@ -5,7 +5,7 @@ import Footer from "./Footer";
 import Sidebar from "./Sidebar";
 import Breadcrumb from "./Breadcrumb";
 // import { Container } from 'react-bootstrap';
-import { Home, Users, Settings, User, Key, Activity, UserPlus, Grid, List, Package } from "lucide-react";
+import { Home, Users, Settings, User, Key, Activity, UserPlus, Grid, List, Package, Building } from "lucide-react";
 import "../../assets/styles/components/header.css";
 import "../../assets/styles/components/sidebar.css";
 import "../../assets/styles/components/footer.css";
@@ -19,6 +19,12 @@ const MainLayout = () => {
       path: "/",
       name: "Inicio",
       icon: <Home size={20} />,
+    },
+    {
+      path: "/companies",
+      name: "Empresas",
+      icon: <Building size={20} />,
+      adminOnly: true
     },
     {
       path: "/users",

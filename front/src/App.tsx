@@ -23,6 +23,7 @@ import ProductCategories from "./components/products/ProductCategories";
 import CreateProduct from "./components/products/CreateProduct";
 import UpdateProduct from "./components/products/UpdateProduct";
 import ProductList from "./components/products/ProductList";
+import CompanyManagement from "./components/companies/CompanyManagement";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -56,6 +57,7 @@ function App() {
             <Route path="products/create" element={<CreateProduct />} />
             <Route path="products/:id/update" element={<UpdateProduct />} />
             <Route path="products/list" element={<ProductList />} />
+            <Route path="companies" element={<CompanyManagement />} />
           </Route>
         </Routes>
       </Router>
