@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from companies.models import Company
+
 class UserActivityLog(models.Model):
     ACTIVITY_TYPES = [
         ('login', 'Inicio de sesión'),
@@ -23,6 +25,12 @@ class UserActivityLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     details = models.TextField()
     ip_address = models.GenericIPAddressField(null=True, blank=True)  # Hacer opcional
+    company = models.ForeignKey(
+        Company, 
+        on_delete=models.CASCADE,
+        null=True,
+        related_name='activity_logs'
+    )
 
     class Meta:
         ordering = ['-timestamp']

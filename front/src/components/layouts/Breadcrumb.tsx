@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Users, Settings, User, Key, UserPlus, Edit, Activity, Users2 } from 'lucide-react';
+import { Home, Users, Settings, User, Key, UserPlus, Edit, Activity, Users2, Package, List, Grid } from 'lucide-react';
 import '../../assets/styles/components/breadcrumb.css';
 
 interface RouteConfig {
@@ -26,6 +26,10 @@ const Breadcrumb: React.FC = () => {
     '/users': {
       name: 'Usuarios',
       icon: <Users size={16} className="breadcrumb-icon" />
+    },
+    '/products': {
+      name: 'Productos',
+      icon: <Package size={16} className="breadcrumb-icon" />
     },
     '/admin_site': {
       name: 'Administración',
@@ -64,6 +68,24 @@ const Breadcrumb: React.FC = () => {
         icon: <Users2 size={16} className="breadcrumb-icon" />
       }
 
+    }, 
+    '/products': {
+      '/list': {
+        name: 'Lista de Productos',
+        icon: <List size={16} className="breadcrumb-icon" />
+      },
+      '/categories': {
+        name: 'Categorías',
+        icon: <Grid size={16} className="breadcrumb-icon" />
+      },
+      '/create': {
+        name: 'Crear Producto',
+        icon: <UserPlus size={16} className="breadcrumb-icon" />
+      },
+      '/:id/update': {
+        name: 'Editar Producto',
+        icon: <Edit size={16} className="breadcrumb-icon" />
+      }
     }
   };
 

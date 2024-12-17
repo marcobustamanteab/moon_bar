@@ -9,11 +9,14 @@ import { AuthAPI } from "../api/endpoints/authService";
 import { UserAPI } from "../api/endpoints/users";
 import api from "../api/axios";
 import { User, ActivityType, UserActivity } from "../interfaces/user.interface";
+import { CompanyUser } from "../interfaces/company.interface";
+import { CompanyAPI } from "../api/endpoints/companies";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   token: string | null;
   user: User | null;
+  companies: CompanyUser[];  // Cambio importante
   login: (credentials: { username: string; password: string }) => Promise<void>;
   logout: () => void;
 }
@@ -39,6 +42,7 @@ const logUserActivity = async (
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [companies, setCompanies] = useState<CompanyUser[]>([]);
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token")
   );
@@ -46,12 +50,67 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserInfo = async (username?: string) => {
     try {
+      console.log("Fetching user info for:", username);
       const users = await UserAPI.getAll();
       const searchUsername = username || localStorage.getItem("username");
+      console.log("Search username:", searchUsername);
+      
       const currentUser = users.find((u) => u.username === searchUsername);
+      console.log("Current user found:", currentUser);
+      
       if (currentUser) {
         setUser(currentUser);
-        // Log successful user info fetch
+        
+        // Recuperar las empresas del usuario actual
+        try {
+          // Obtener todas las empresas del usuario
+          const companies = await CompanyAPI.getAll();
+          const userCompanies: CompanyUser[] = [];
+  
+          // Filtrar y obtener usuarios de cada empresa
+          for (const company of companies) {
+            try {
+              const companyUsers = await CompanyAPI.getCompanyUsers(company.id);
+              
+              // Modificar para manejar diferentes estructuras de user
+              const userCompanyUser = companyUsers.find(cu => {
+                // Manejar diferentes posibles estructuras de user
+                const userId = typeof cu.user === 'object' ? cu.user.id : cu.user;
+                return userId === currentUser.id;
+              });
+              
+              if (userCompanyUser) {
+                userCompanies.push(userCompanyUser);
+              }
+            } catch (companyUsersError) {
+              console.error(`Error fetching users for company ${company.id}:`, companyUsersError);
+            }
+          }
+  
+          console.log("Fetched user companies:", userCompanies);
+          
+          if (userCompanies.length > 0) {
+            setCompanies(userCompanies);
+            
+            // Recuperar empresa almacenada o guardar la primera
+            const storedCompany = localStorage.getItem("selectedCompany");
+            if (!storedCompany) {
+              try {
+                localStorage.setItem(
+                  "selectedCompany", 
+                  JSON.stringify(userCompanies[0].company)
+                );
+              } catch (error) {
+                console.error("Error saving selected company:", error);
+              }
+            }
+          } else {
+            console.warn("No companies found for the user");
+          }
+        } catch (companiesError) {
+          console.error("Error fetching companies:", companiesError);
+        }
+        
         await logUserActivity(
           currentUser.username,
           "profile_fetch",
@@ -60,17 +119,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error("Error al obtener información del usuario:", error);
-      // Log failed user info fetch
-      if (username) {
-        await logUserActivity(
-          username,
-          "profile_fetch_failed",
-          "Error al obtener información del perfil"
-        );
-      }
     }
   };
-
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("token");
@@ -80,27 +130,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setIsAuthenticated(isValid);
           if (isValid) {
             api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            await fetchUserInfo();
-            // Log successful token validation
             const username = localStorage.getItem("username");
-            if (username) {
-              await logUserActivity(
-                username,
-                "token_validation",
-                "Token validado exitosamente"
-              );
-            }
+            await fetchUserInfo(username || undefined);
           } else {
             logout();
-            // Log failed token validation
-            const username = localStorage.getItem("username");
-            if (username) {
-              await logUserActivity(
-                username,
-                "token_validation_failed",
-                "Token inválido"
-              );
-            }
           }
         } catch {
           logout();
@@ -120,35 +153,53 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }) => {
     try {
       const data = await AuthAPI.login({ username, password });
+      console.log("Login response:", data);
+
       setToken(data.access);
       localStorage.setItem("token", data.access);
       localStorage.setItem("refresh_token", data.refresh);
       localStorage.setItem("username", username);
       setIsAuthenticated(true);
+      
+      // Establecer empresas directamente desde la respuesta
+      if (data.companies) {
+        console.log("Estableciendo empresas:", data.companies);
+        setCompanies(data.companies);
+        
+        // Guardar la primera empresa si existe
+        if (data.companies.length > 0) {
+          try {
+            localStorage.setItem(
+              "selectedCompany", 
+              JSON.stringify(data.companies[0].company)
+            );
+          } catch (error) {
+            console.error("Error guardando empresa seleccionada:", error);
+          }
+        }
+      }
 
       api.defaults.headers.common["Authorization"] = `Bearer ${data.access}`;
 
       await fetchUserInfo(username);
       
-      // Log successful login
       await logUserActivity(
         username,
         "login",
         "Inicio de sesión exitoso"
       );
     } catch (error) {
-      // Log failed login attempt
       await logUserActivity(
         username,
         "failed_login",
         "Intento fallido de inicio de sesión"
       );
       throw error;
+
     }
   };
 
   const logout = async () => {
-    // Log logout activity before clearing user data
     if (user) {
       await logUserActivity(
         user.username,
@@ -160,15 +211,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
+    setCompanies([]);
     localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("username");
+    localStorage.removeItem("selectedCompany");
     delete api.defaults.headers.common["Authorization"];
   };
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, token, user, login, logout }}
+      value={{ 
+        isAuthenticated, 
+        token, 
+        user, 
+        companies, 
+        login, 
+        logout 
+      }}
     >
       {children}
     </AuthContext.Provider>
