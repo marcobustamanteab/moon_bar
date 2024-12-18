@@ -1,9 +1,9 @@
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Company, CompanyModule, CompanyUser
-from .serializers import CompanySerializer, CompanyModuleSerializer, CompanyUserSerializer, CompanyTokenObtainPairSerializer
-from .permissions import IsCompanyAdmin, HasModulePermission
+from .models import Company, CompanyUser
+from .serializers import CompanySerializer, CompanyUserSerializer, CompanyTokenObtainPairSerializer
+from .permissions import IsCompanyAdmin
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
@@ -39,6 +39,8 @@ class CompanyViewSet(viewsets.ModelViewSet):
         # Serializar los usuarios
         serializer = CompanyUserSerializer(company_users, many=True)
         return Response(serializer.data)
+    
+    
 
 
 class CompanyTokenObtainPairView(TokenObtainPairView):

@@ -17,14 +17,25 @@ export const UserAPI = {
     return response.data;
   },
 
-  getById: async (id: number) => {
-    const response = await api.get<User>(`/api/users/${id}/get-user/`);
-    return response.data;
+  async getById(id: number): Promise<User> {
+    try {
+      const response = await api.get(`/api/users/${id}/get-user/`);
+      return response.data;
+    } catch (error) {
+      console.error("Error obteniendo usuario:", error);
+      throw error;
+    }
   },
 
-  create: async (userData: Partial<User>) => {
-    const response = await api.post<User>("/api/users/create/", userData);
-    return response.data;
+  async create(userData: unknown): Promise<User> {
+    try {
+      console.log("Enviando datos de usuario:", userData);
+      const response = await api.post("/api/users/create/", userData);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating user:", error);
+      throw error;
+    }
   },
 
   getCurrentUser: async () => {
@@ -55,12 +66,12 @@ export const UserAPI = {
   },
 
   logActivity: async (activityData: UserActivity) => {
-    const response = await api.post('/api/users/activity-logs/', activityData);
+    const response = await api.post("/api/users/activity-logs/", activityData);
     return response.data;
   },
-  
+
   createGroup: async (data: { name: string }) => {
-    const response = await api.post('/api/groups/create/', data);
+    const response = await api.post("/api/groups/create/", data);
     return response.data;
   },
 
@@ -72,6 +83,5 @@ export const UserAPI = {
   deleteGroup: async (id: number) => {
     const response = await api.delete(`/api/groups/${id}/delete/`);
     return response.data;
-  } 
-
+  },
 };

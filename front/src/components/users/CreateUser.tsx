@@ -2,23 +2,22 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAPI } from "../../api/endpoints";
-import { Group, User } from "../../interfaces";
+import { Group, PartialUser } from "../../interfaces";
 import { ArrowLeft, UserPlus } from "lucide-react";
 
 const CreateUser: React.FC = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<Partial<User>>({
+  const [user, setUser] = useState<PartialUser>({
     username: "",
     email: "",
     first_name: "",
     last_name: "",
-    password: "",
-    groups: [],
   });
+  const [password, setPassword] = useState<string>("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState<number | "">("");
+  const [selectedGroup, setSelectedGroup] = useState<string | number>("");
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -37,16 +36,22 @@ const CreateUser: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setUser((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    
+    if (name === 'password') {
+      setPassword(value);
+    } else {
+      setUser((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+    
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleGroupChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value ? parseInt(e.target.value) : null;
-    setSelectedGroup(value);
+    const value = e.target.value;
+    setSelectedGroup(value ? Number(value) : "");
     setErrors((prev) => ({ ...prev, groups: "" }));
   };
 
@@ -65,7 +70,7 @@ const CreateUser: React.FC = () => {
     if (!user.last_name) {
       newErrors.last_name = "El apellido es requerido";
     }
-    if (!user.password) {
+    if (!password) {
       newErrors.password = "La contraseña es requerida";
     }
     if (!selectedGroup) {
@@ -80,18 +85,20 @@ const CreateUser: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrors({});
-
+  
     if (validate()) {
       try {
         const dataToSend = {
           username: user.username,
           email: user.email,
-          password: user.password,
+          password: password,
           first_name: user.first_name,
           last_name: user.last_name,
-          groups: selectedGroup ? [selectedGroup] : [],
+          groups: selectedGroup ? [groups.find(g => g.id === selectedGroup)?.name] : [],
         };
-
+      
+        console.log("Datos a enviar:", dataToSend);
+  
         await UserAPI.create(dataToSend);
         navigate("/users/manage", {
           state: {
@@ -101,17 +108,18 @@ const CreateUser: React.FC = () => {
           },
         });
       } catch (error: any) {
+        console.error("Error completo:", error.response?.data || error);
         if (error.response?.data) {
           setErrors(error.response.data);
         } else {
           setErrors({ general: "Error al crear el usuario" });
         }
-        console.error("Error al crear usuario:", error);
       }
     }
     setIsSubmitting(false);
   };
 
+  
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Crear Usuario</h2>

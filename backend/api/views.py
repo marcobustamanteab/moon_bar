@@ -1,21 +1,17 @@
-from django.shortcuts import render
-
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from django.forms.models import model_to_dict
-from api.serializers import UserSerializer
-from rest_framework import status, generics
 from django.contrib.auth.hashers import check_password
-
-from companies.models import CompanyUser
-from .models import UserActivityLog
-from .serializers import GroupSerializer, UserActivityLogSerializer
+from rest_framework import status
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Count
 
+from companies.serializers import CompanyUserSerializer
+from companies.models import CompanyUser
+from .models import User, UserActivityLog
+from .serializers import UserSerializer, GroupSerializer, UserActivityLogSerializer
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -25,7 +21,6 @@ def change_password(request):
     new_password = request.data.get('newPassword')
     
     if not check_password(current_password, user.password):
-        # Registrar el intento fallido de cambio de contraseña
         log_user_activity(
             user=user,
             activity_type='password_change_failed',
@@ -41,7 +36,6 @@ def change_password(request):
         user.set_password(new_password)
         user.save()
         
-        # Registrar el cambio exitoso de contraseña
         log_user_activity(
             user=user,
             activity_type='password_change',
@@ -51,7 +45,6 @@ def change_password(request):
         
         return Response({"detail": "Contraseña actualizada exitosamente"})
     except Exception as e:
-        # Registrar el error en el cambio de contraseña
         log_user_activity(
             user=user,
             activity_type='password_change_error',
@@ -63,18 +56,23 @@ def change_password(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_list(request):
     company_id = request.headers.get('X-Company-ID')
     
-    if request.user.is_superuser:
+    if request.user.is_superuser or request.user.is_system_admin:
         users = User.objects.all()
     else:
-        company_user = request.user.company_users.filter(company_id=company_id, is_company_admin=True).first()
+        company_user = request.user.company_users.filter(
+            company_id=company_id, 
+            is_company_admin=True
+        ).first()
         if not company_user:
-            return Response({"detail": "No tienes permiso para ver los usuarios"}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "No tienes permiso para ver los usuarios"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
         users = User.objects.filter(company_users__company_id=company_id)
     
     user_data = []
@@ -86,18 +84,18 @@ def user_list(request):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'is_active': user.is_active,
+            'is_system_admin': user.is_system_admin,
+            'phone': user.phone,
             'date_joined': user.date_joined,
             'groups': [group.name for group in user.groups.all()],
         })
     return Response(user_data)
 
-# get groups 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_groups(request):
     groups = Group.objects.all()
     return Response([{'id': group.id, 'name': group.name} for group in groups])
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -105,21 +103,16 @@ def current_user(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
-
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@permission_classes([IsAuthenticated])
 def manage_users(request):
     company_id = request.headers.get('X-Company-ID')
-    
-    # Query base
     users = User.objects.all().order_by('-date_joined')
     
-    # Si hay una empresa seleccionada, filtrar por ella
     if company_id:
         users = users.filter(company_users__company_id=company_id)
     
-    # Si no es superusuario, solo mostrar usuarios de sus empresas
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or request.user.is_system_admin):
         user_companies = request.user.company_users.filter(
             is_company_admin=True
         ).values_list('company_id', flat=True)
@@ -131,44 +124,36 @@ def manage_users(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_user(request):
-    company_id = request.headers.get('X-Company-ID')
+    print("Datos recibidos COMPLETOS:", request.data)
     
-    if not request.user.is_superuser:
-        company_user = request.user.company_users.filter(company_id=company_id, is_company_admin=True).first()
-        if not company_user:
-            return Response({"detail": "No tienes permiso para crear usuarios"}, status=status.HTTP_403_FORBIDDEN)
+    # Verifica los grupos
+    groups = request.data.get('groups', [])
+    print("Grupos recibidos en la vista:", groups)
     
+    # Verificar grupos existentes
+    existing_groups = Group.objects.filter(name__in=groups)
+    print("Grupos existentes:", list(existing_groups.values_list('name', flat=True)))
+
     serializer = UserSerializer(data=request.data)
     
     if serializer.is_valid():
         try:
             user = serializer.save()
             
-            if company_id:
-                CompanyUser.objects.create(
-                    user=user,
-                    company_id=company_id,
-                    role=request.data.get('role', 'staff'),
-                    is_company_admin=request.data.get('is_company_admin', False)
-                )
+            # Verificar grupos después de guardar
+            print("Grupos finales del usuario:", list(user.groups.values_list('name', flat=True)))
             
-            log_user_activity(
-                user=request.user,
-                activity_type='user_created',
-                details=f'Usuario creado: {user.username}',
-                request=request
-            )
-            
+            # Resto del código...
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
+            print("Error al crear usuario:", str(e))
             return Response(
                 {"detail": f"Error al crear el usuario: {str(e)}"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-
+    else:
+        print("Errores de validación:", serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -178,25 +163,47 @@ def get_user(request, id):
         serializer = UserSerializer(user)
         user_data = serializer.data
         
-        # Obtener el grupo del usuario y agregarlo al serializer
+        # Obtener el primer grupo y su ID si existe
         group = user.groups.first()
         if group:
-            user_data['group'] = group.id
+            user_data['group'] = {
+                'id': group.id,
+                'name': group.name
+            }
         else:
             user_data['group'] = None
         
+        # Añadir información de empresas si es necesario
+        company_users = user.company_users.filter(is_active=True)
+        if company_users.exists():
+            user_data['companies'] = [
+                {
+                    'id': cu.company.id,
+                    'name': cu.company.name,
+                    'role': cu.role,
+                    'is_company_admin': cu.is_company_admin
+                } for cu in company_users
+            ]
+        else:
+            user_data['companies'] = []
+        
         return Response(user_data)
     except User.DoesNotExist:
-        return Response({"detail": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Usuario no encontrado"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
 
-# update users
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_user(request, id):
     try:
         user = User.objects.get(id=id)
     except User.DoesNotExist:
-        return Response({"detail": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"detail": "Usuario no encontrado"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
 
     serializer = UserSerializer(user, data=request.data, partial=True)
     if serializer.is_valid():
@@ -204,19 +211,22 @@ def update_user(request, id):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# delete users
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_user(request, id):
     try:
         user = User.objects.get(id=id)
         user.delete()
-        return Response({"detail": "Usuario eliminado exitosamente"}, status=status.HTTP_200_OK)
+        return Response(
+            {"detail": "Usuario eliminado exitosamente"}, 
+            status=status.HTTP_200_OK
+        )
     except User.DoesNotExist:
-        return Response({"detail": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
-    
+        return Response(
+            {"detail": "Usuario no encontrado"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
 
-# Log de usuarios
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def get_user_logs(request):
@@ -230,10 +240,9 @@ def get_user_logs(request):
         since = timezone.now() - timedelta(days=int(days))
         logs = UserActivityLog.objects.filter(timestamp__gte=since)
         
-        # Filtrar por empresa si está seleccionada
         if company_id:
             logs = logs.filter(company_id=company_id)
-        elif not request.user.is_superuser:
+        elif not (request.user.is_superuser or request.user.is_system_admin):
             user_companies = request.user.company_users.filter(
                 is_company_admin=True
             ).values_list('company_id', flat=True)
@@ -254,7 +263,7 @@ def get_user_logs(request):
                 user=user,
                 activity_type=request.data.get('activity_type'),
                 details=request.data.get('details'),
-                ip_address=get_client_ip(request._request),  # Usar _request aquí
+                ip_address=get_client_ip(request._request),
                 company_id=company_id
             )
             serializer = UserActivityLogSerializer(log)
@@ -266,12 +275,8 @@ def get_user_logs(request):
             )
 
 def log_user_activity(user, activity_type, details, request):
-    """Función auxiliar para registrar actividad"""
     try:
-        # Siempre usar el request._request para obtener el HttpRequest
         django_request = request._request if hasattr(request, '_request') else request
-        
-        # Obtener el company_id del request original
         company_id = request.headers.get('X-Company-ID') if hasattr(request, 'headers') else None
 
         UserActivityLog.objects.create(
@@ -285,10 +290,6 @@ def log_user_activity(user, activity_type, details, request):
         print(f"Error al registrar actividad: {str(e)}")
 
 def get_client_ip(request):
-    """
-    Función segura para obtener la IP del cliente.
-    Funciona tanto con HttpRequest como con Request de DRF.
-    """
     try:
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
@@ -299,8 +300,14 @@ def get_client_ip(request):
         return ''
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@permission_classes([IsAuthenticated])
 def create_group(request):
+    if not (request.user.is_superuser or request.user.is_system_admin):
+        return Response(
+            {"detail": "No tienes permiso para crear grupos"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
     name = request.data.get('name')
     if not name:
         return Response(
@@ -329,6 +336,12 @@ def create_group(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_group(request, id):
+    if not (request.user.is_superuser or request.user.is_system_admin):
+        return Response(
+            {"detail": "No tienes permiso para actualizar grupos"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
     try:
         group = Group.objects.get(id=id)
         name = request.data.get('name')
@@ -366,6 +379,12 @@ def update_group(request, id):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_group(request, id):
+    if not (request.user.is_superuser or request.user.is_system_admin):
+        return Response(
+            {"detail": "No tienes permiso para eliminar grupos"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
     try:
         group = Group.objects.get(id=id)
         name = group.name
@@ -394,3 +413,18 @@ def get_groups(request):
         'name': group.name,
         'user_count': group.user_count
     } for group in groups])
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_companies(request, user_id):
+    try:
+        user_companies = CompanyUser.objects.filter(
+            user_id=user_id,
+            is_active=True,
+            company__is_active=True
+        )
+        serializer = CompanyUserSerializer(user_companies, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

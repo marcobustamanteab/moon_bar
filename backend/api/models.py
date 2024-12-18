@@ -1,9 +1,38 @@
 from django.db import models
-from django.contrib.auth.models import User
-
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 from companies.models import Company
 
+class User(AbstractUser):
+    """
+    Modelo de usuario personalizado que extiende el AbstractUser de Django.
+    Agrega campos adicionales específicos para la aplicación.
+    """
+    is_system_admin = models.BooleanField(
+        default=False,
+        help_text='Designa si el usuario es un administrador del sistema.'
+    )
+    phone = models.CharField(
+        max_length=20, 
+        blank=True, 
+        null=True,
+        help_text='Número de teléfono del usuario'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Usuario'
+        verbose_name_plural = 'Usuarios'
+        
+    def __str__(self):
+        return self.username
+
 class UserActivityLog(models.Model):
+    """
+    Registro de actividades de usuarios en el sistema.
+    Mantiene un historial de acciones importantes.
+    """
     ACTIVITY_TYPES = [
         ('login', 'Inicio de sesión'),
         ('logout', 'Cierre de sesión'),
@@ -20,20 +49,27 @@ class UserActivityLog(models.Model):
         ('profile_fetch_failed', 'Error al obtener perfil'),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activity_logs')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='activity_logs'
+    )
     activity_type = models.CharField(max_length=50, choices=ACTIVITY_TYPES)
     timestamp = models.DateTimeField(auto_now_add=True)
     details = models.TextField()
-    ip_address = models.GenericIPAddressField(null=True, blank=True)  # Hacer opcional
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
     company = models.ForeignKey(
         Company, 
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name='activity_logs'
     )
 
     class Meta:
         ordering = ['-timestamp']
+        verbose_name = 'Registro de actividad'
+        verbose_name_plural = 'Registros de actividad'
 
     def __str__(self):
         return f"{self.user.username} - {self.activity_type} - {self.timestamp}"

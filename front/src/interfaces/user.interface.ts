@@ -4,7 +4,6 @@ import { Company } from "./company.interface";
 export interface User {
   id: number;
   username: string;
-  password: string; 
   email: string;
   first_name: string;
   last_name: string;
@@ -12,12 +11,19 @@ export interface User {
   date_joined: string;
   groups?: string[];
   companies?: Company[];
-  is_superuser?: boolean;  
+  is_superuser?: boolean;
+  is_system_admin?: boolean;  
+  phone?: string;
+  group?: {
+    id: number;
+    name: string;
+  } | null;
 }
 
 export interface Group {
   id: number;
   name: string;
+  user_count: number;
 }
 
 export type ActivityType = 
