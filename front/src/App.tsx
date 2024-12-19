@@ -46,6 +46,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="users" element={<UserList />} />
             <Route path="users/profile" element={<UserProfile />} />
+            <Route path="/users/profile/:id" element={<UserProfile />} />
             <Route path="users/change-password" element={<ChangePassword />} />
             <Route path="admin_site" element={<UserList />} />
             <Route path="users/manage" element={<UserManagement />} />

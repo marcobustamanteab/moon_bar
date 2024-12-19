@@ -7,7 +7,6 @@ from rest_framework import status
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Count
-
 from companies.serializers import CompanyUserSerializer
 from companies.models import CompanyUser
 from .models import User, UserActivityLog
@@ -199,17 +198,56 @@ def get_user(request, id):
 def update_user(request, id):
     try:
         user = User.objects.get(id=id)
+        
+        # Guardamos los datos antiguos para el log
+        old_data = {
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'is_active': user.is_active,
+            'groups': [group.name for group in user.groups.all()]
+        }
+
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            # Guardamos el usuario actualizado
+            updated_user = serializer.save()
+            
+            # Comparamos los cambios para el log
+            changes = []
+            new_data = serializer.data
+            for field in old_data:
+                if field in new_data and old_data[field] != new_data[field]:
+                    changes.append(f"{field}: {old_data[field]} → {new_data[field]}")
+            
+            # Creamos el mensaje de log
+            log_details = "Actualización de perfil"
+            if changes:
+                log_details += f": {', '.join(changes)}"
+            
+            # Registramos la actividad
+            log_user_activity(
+                user=user,
+                activity_type="profile_update",
+                details=log_details,
+                request=request
+            )
+            
+            return Response(serializer.data)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
     except User.DoesNotExist:
         return Response(
             {"detail": "Usuario no encontrado"}, 
             status=status.HTTP_404_NOT_FOUND
         )
-
-    serializer = UserSerializer(user, data=request.data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response(
+            {"detail": f"Error al actualizar usuario: {str(e)}"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -240,13 +278,31 @@ def get_user_logs(request):
         since = timezone.now() - timedelta(days=int(days))
         logs = UserActivityLog.objects.filter(timestamp__gte=since)
         
+        # Si es superusuario o admin del sistema, puede ver todos los logs
+        if not (request.user.is_superuser or request.user.is_system_admin):
+            # Si se especifica un username y es diferente al usuario actual
+            if username and username != request.user.username:
+                # Solo permitir ver logs de otros usuarios si es admin de la compañía
+                if company_id:
+                    is_company_admin = request.user.company_users.filter(
+                        company_id=company_id,
+                        is_company_admin=True
+                    ).exists()
+                    if not is_company_admin:
+                        # Si no es admin de la compañía, solo ver sus propios logs
+                        username = request.user.username
+            else:
+                # Si no se especifica username o es el mismo usuario
+                username = request.user.username
+                logs = logs.filter(user__username=username)
+        
         if company_id:
             logs = logs.filter(company_id=company_id)
-        elif not (request.user.is_superuser or request.user.is_system_admin):
-            user_companies = request.user.company_users.filter(
-                is_company_admin=True
-            ).values_list('company_id', flat=True)
-            logs = logs.filter(company_id__in=user_companies)
+        # elif not (request.user.is_superuser or request.user.is_system_admin):
+        #     user_companies = request.user.company_users.filter(
+        #         is_company_admin=True
+        #     ).values_list('company_id', flat=True)
+        #     logs = logs.filter(company_id__in=user_companies)
         
         if activity_type:
             logs = logs.filter(activity_type=activity_type)

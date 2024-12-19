@@ -1,7 +1,6 @@
 import api from "../axios";
 import {
   Company,
-  CompanyModule,
   CompanyUser,
 } from "../../interfaces/company.interface";
 
@@ -32,13 +31,6 @@ export const CompanyAPI = {
     await api.delete(`/api/companies/${id}/`);
   },
 
-  // Módulos
-  getModules: async (companyId: number) => {
-    const response = await api.get<CompanyModule[]>(
-      `/api/companies/${companyId}/modules/`
-    );
-    return response.data;
-  },
 
   // Usuarios de la empresa
   getCompanyUsers: async (companyId: number) => {

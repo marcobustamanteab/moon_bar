@@ -11,18 +11,9 @@ export interface Company {
   description?: string;
   created_at: string;
   updated_at: string;
-  modules?: CompanyModule[];
   role?: string;
   is_admin?: boolean;
 }
-  
-  export interface CompanyModule {
-    id: number;
-    name: string;
-    is_active: boolean;
-    config: Record<string, unknown>;
-    expiration_date?: string;
-  }
   
   export interface CompanyUser {
     id: number;

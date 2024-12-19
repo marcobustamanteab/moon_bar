@@ -54,7 +54,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({ expanded }) => {
             />
             <div className="user-details-horizontal">
               <div className="user-name">{user?.first_name} {user?.last_name}</div>
-              <div className="user-role">Administrador</div>
+              <div className="user-role">{user?.groups?.[0] || "Sin grupo"}</div>
             </div>
           </div>
         ) : (

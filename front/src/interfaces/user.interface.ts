@@ -1,5 +1,3 @@
-import { Company } from "./company.interface";
-
 
 export interface User {
   id: number;
@@ -10,7 +8,16 @@ export interface User {
   is_active: boolean;
   date_joined: string;
   groups?: string[];
-  companies?: Company[];
+  company_user?: {
+    company: {
+      id: number;
+      name: string;
+    }
+  };
+  company?: {
+    id: number;
+    name: string;
+  };
   is_superuser?: boolean;
   is_system_admin?: boolean;  
   phone?: string;
@@ -18,6 +25,7 @@ export interface User {
     id: number;
     name: string;
   } | null;
+  company_id?: number;
 }
 
 export interface Group {

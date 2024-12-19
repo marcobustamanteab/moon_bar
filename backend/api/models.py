@@ -4,10 +4,6 @@ from django.conf import settings
 from companies.models import Company
 
 class User(AbstractUser):
-    """
-    Modelo de usuario personalizado que extiende el AbstractUser de Django.
-    Agrega campos adicionales específicos para la aplicación.
-    """
     is_system_admin = models.BooleanField(
         default=False,
         help_text='Designa si el usuario es un administrador del sistema.'

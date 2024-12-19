@@ -84,4 +84,5 @@ export const UserAPI = {
     const response = await api.delete(`/api/groups/${id}/delete/`);
     return response.data;
   },
+
 };
