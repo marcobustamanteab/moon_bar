@@ -1,6 +1,6 @@
 import { useAuth } from "../../context/AuthContext";
 import { Card } from "react-bootstrap";
-import { User as UserIcon, Mail, Users, Calendar, Clock } from "lucide-react";
+import { User as UserIcon, Users, Calendar, Clock, Phone } from "lucide-react";
 import avatarImage from "../../assets/images/avatar001.jpeg";
 import { useEffect, useState } from "react";
 import { UserAPI } from "../../api/endpoints/users";
@@ -38,15 +38,13 @@ const UserProfile = () => {
     async function fetchUserData() {
       try {
         if (id) {
-          // Si hay un id en la URL, cargar ese usuario específico
           const userData = await UserAPI.getById(parseInt(id));
           setProfileUser(userData);
         } else {
-          // Si no hay id, usar el usuario actual
           setProfileUser(currentUser);
         }
       } catch (error) {
-        console.error('Error al cargar usuario:', error);
+        console.error("Error al cargar usuario:", error);
       }
     }
 
@@ -58,7 +56,6 @@ const UserProfile = () => {
       if (!profileUser) return;
 
       try {
-        // Obtener último acceso
         const loginLogs = await UserAPI.getActivityLogs({
           activity_type: "login",
           days: 30,
@@ -72,7 +69,6 @@ const UserProfile = () => {
           setLastLogin(sortedLoginLogs[0]);
         }
 
-        // Obtener última actualización
         const updateLogs = await UserAPI.getActivityLogs({
           activity_type: "profile_update",
           days: 90,
@@ -140,9 +136,7 @@ const UserProfile = () => {
       return (
         <div>
           <span>{formattedDate}</span>
-          <div className="small text-muted mt-1">
-            IP: {lastLogin.ip_address}
-          </div>
+          <div className="small text-muted mt-1">IP: {lastLogin.ip_address}</div>
         </div>
       );
     }
@@ -153,58 +147,58 @@ const UserProfile = () => {
     if (user.is_superuser) {
       return "Acceso completo a todas las funcionalidades del sistema";
     }
-
     if (user.is_system_admin) {
       return "Acceso administrativo general";
     }
-
     if (user.groups?.includes("Administrador")) {
       return "Gestión de empresa y usuarios asociados";
     }
-
     if (user.groups?.includes("Garzón")) {
       return "Acceso a funciones de servicio y atención";
     }
-
     if (user.groups?.includes("Cajero")) {
       return "Gestión de pagos y transacciones";
     }
-
     if (user.groups?.includes("Bodeguero")) {
       return "Control y gestión de inventario";
     }
-
     return "Acceso básico al sistema";
   };
 
-  // En el JSX, reemplazar todas las referencias a 'user' por 'profileUser'
   return (
     <div className="p-4">
       <div className="row g-4">
-        {/* Columna izquierda */}
         <div className="col-12 col-md-3">
-          <Card className="shadow-sm border-0">
-            <Card.Header
-              className="bg-white border-bottom"
-              style={{ borderColor: "rgba(45, 53, 100, 0.1)" }}
+          <Card className="border-0" style={{
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+          }}>
+            <div 
+              className="position-relative"
+              style={{ 
+                background: 'rgb(45, 53, 100)',
+                height: '65px'
+              }}
             >
-              <h5
-                className="mb-0"
-                style={{ color: "#2d3564", fontSize: "1.1rem" }}
+              <div 
+                className="position-absolute"
+                style={{
+                  bottom: '-40px',
+                  left: '50%',
+                  transform: 'translateX(-50%)'
+                }}
               >
-                Información Principal
-              </h5>
-            </Card.Header>
-            <Card.Body>
-              <div className="d-flex flex-column gap-4">
-                <div className="text-center mb-4">
+                <div
+                  className="rounded-circle p-1 bg-white"
+                  style={{
+                    width: '90px',
+                    height: '90px',
+                    boxShadow: '0 1.5px 3px 0 rgba(0, 0, 0, 0.15), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+                  }}
+                >
                   <div
-                    className="d-flex align-items-center justify-content-center rounded-circle mx-auto mb-3 overflow-hidden"
+                    className="rounded-circle overflow-hidden w-100 h-100"
                     style={{
-                      width: "96px",
-                      height: "96px",
-                      backgroundColor: "rgba(45, 53, 100, 0.1)",
-                      border: "2px solid rgba(45, 53, 100, 0.2)",
+                      border: '2px solid rgba(45, 53, 100, 0.2)',
                     }}
                   >
                     <img
@@ -213,12 +207,21 @@ const UserProfile = () => {
                       className="w-100 h-100 object-fit-cover"
                     />
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <Card.Body>
+              <div className="d-flex flex-column gap-4">
+                <div className="text-center" style={{ marginTop: '35px' }}>
                   <h3 className="fs-5 fw-medium" style={{ color: "#2d3564" }}>
                     {profileUser.first_name} {profileUser.last_name}
                   </h3>
-                  <p className="text-muted small">
+                  <p className="text-muted small mb-0">
                     {profileUser.groups?.[0] || "Sin grupo asignado"}
                   </p>
+                  
+                  <hr className="my-3" />
                 </div>
 
                 <div className="d-flex flex-column gap-3">
@@ -235,9 +238,11 @@ const UserProfile = () => {
                   </div>
 
                   <div className="d-flex align-items-center gap-2 small">
-                    <Mail size={16} style={{ color: "#2d3564" }} />
-                    <span className="fw-medium">Email:</span>
-                    <span className="text-truncate">{profileUser.email}</span>
+                    <Phone size={16} style={{ color: "#2d3564" }} />
+                    <span className="fw-medium">Teléfono:</span>
+                    <span className="text-truncate">
+                      {profileUser.phone || "No registrado"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -245,17 +250,12 @@ const UserProfile = () => {
           </Card>
         </div>
 
-        {/* Columna derecha */}
         <div className="col-12 col-md-9">
-          <Card className="shadow-sm border-0">
-            <Card.Header
-              className="bg-white border-bottom"
-              style={{ borderColor: "rgba(45, 53, 100, 0.1)" }}
-            >
-              <h5
-                className="mb-0"
-                style={{ color: "#2d3564", fontSize: "1.1rem" }}
-              >
+          <Card className="border-0" style={{
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+          }}>
+            <Card.Header className="bg-white border-bottom" style={{ borderColor: "rgba(45, 53, 100, 0.1)" }}>
+              <h5 className="mb-0" style={{ color: "#2d3564", fontSize: "1.1rem" }}>
                 Detalles de la Cuenta
               </h5>
             </Card.Header>
@@ -289,22 +289,14 @@ const UserProfile = () => {
                 <div className="col-12 col-md-6">
                   <div className="d-flex flex-column gap-4">
                     <div>
-                      <h6 className="text-muted small mb-1">
-                        Estado de la Cuenta
-                      </h6>
-                      <span
-                        className={`badge ${
-                          profileUser.is_active ? "bg-success" : "bg-danger"
-                        }`}
-                      >
+                      <h6 className="text-muted small mb-1">Estado de la Cuenta</h6>
+                      <span className={`badge ${profileUser.is_active ? "bg-success" : "bg-danger"}`}>
                         {profileUser.is_active ? "Activo" : "Inactivo"}
                       </span>
                     </div>
 
                     <div>
-                      <h6 className="text-muted small mb-1">
-                        Fecha de Registro
-                      </h6>
+                      <h6 className="text-muted small mb-1">Fecha de Registro</h6>
                       <div className="d-flex align-items-center gap-2">
                         <Calendar size={16} style={{ color: "#2d3564" }} />
                         <span style={{ color: "#2d3564" }}>{joinDate}</span>
@@ -312,11 +304,11 @@ const UserProfile = () => {
                     </div>
 
                     <div>
-                      <h6 className="text-muted small mb-1">Último Acceso</h6>
+                      <h6 className="text-muted small mb-1">Última Actualización</h6>
                       <div className="d-flex align-items-center gap-2">
                         <Clock size={16} style={{ color: "#2d3564" }} />
                         <span style={{ color: "#2d3564" }}>
-                          <LastAccessSection />
+                          {formatLastAccess(lastUpdate)}
                         </span>
                       </div>
                     </div>
@@ -326,15 +318,11 @@ const UserProfile = () => {
             </Card.Body>
           </Card>
 
-          <Card className="mt-4 shadow-sm border-0">
-            <Card.Header
-              className="bg-white border-bottom"
-              style={{ borderColor: "rgba(45, 53, 100, 0.1)" }}
-            >
-              <h5
-                className="mb-0"
-                style={{ color: "#2d3564", fontSize: "1.1rem" }}
-              >
+          <Card className="mt-4 border-0" style={{
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+          }}>
+            <Card.Header className="bg-white border-bottom" style={{ borderColor: "rgba(45, 53, 100, 0.1)" }}>
+              <h5 className="mb-0" style={{ color: "#2d3564", fontSize: "1.1rem" }}>
                 Permisos y Accesos
               </h5>
             </Card.Header>
@@ -353,13 +341,11 @@ const UserProfile = () => {
                   </p>
                 </div>
                 <div className="col-12 col-md-4">
-                  <h6 className="text-muted small mb-2">
-                    Última Actualización
-                  </h6>
+                  <h6 className="text-muted small mb-2">Último Acceso</h6>
                   <div className="d-flex align-items-center gap-2">
                     <Clock size={16} style={{ color: "#2d3564" }} />
                     <span style={{ color: "#2d3564" }}>
-                      {formatLastAccess(lastUpdate)}
+                      <LastAccessSection />
                     </span>
                   </div>
                 </div>

@@ -9,7 +9,6 @@ import { TableColumn } from "react-data-table-component";
 import { Toast, Modal, Button } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { CompanyUser } from "../../interfaces/company.interface";
 
 const UserManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -19,38 +18,19 @@ const UserManagement: React.FC = () => {
   const [error, setError] = useState<string>("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState<number | null>(null);
-
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<"success" | "danger">("success");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const { companies } = useAuth();
   const { user } = useAuth();
-  
+
   const handleViewProfile = (userId: number) => {
     if (user && userId === user?.id) {
-      navigate('/users/profile');
+      navigate("/users/profile");
     } else {
       navigate(`/users/profile/${userId}`);
     }
   };
-
-  const userCompaniesMap = useMemo(() => {
-    const mapping: Record<number, CompanyUser[]> = {};
-    
-    companies.forEach((companyUser: CompanyUser) => {
-      const userId = typeof companyUser.user === 'number' 
-        ? companyUser.user 
-        : companyUser.user.id;
-        
-      if (!mapping[userId]) {
-        mapping[userId] = [];
-      }
-      mapping[userId].push(companyUser);
-    });
-    
-    return mapping;
-  }, [companies]);
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -66,8 +46,11 @@ const UserManagement: React.FC = () => {
         user.last_name.toLowerCase().includes(searchValue) ||
         user.email.toLowerCase().includes(searchValue) ||
         userGroups.some((group) => group.toLowerCase().includes(searchValue)) ||
-        (user.company?.name &&
-          user.company.name.toLowerCase().includes(searchValue))
+        new Date(user.date_joined).toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }).toLowerCase().includes(searchValue)
       );
     });
   }, [users, searchTerm]);
@@ -96,7 +79,6 @@ const UserManagement: React.FC = () => {
       setLoading(true);
       await UserAPI.deleteUser(userToDelete);
       setShowDeleteModal(false);
-      // Recargar la lista de usuarios
       await fetchUsers();
       setToastMessage("Usuario eliminado exitosamente");
       setToastType("success");
@@ -147,130 +129,123 @@ const UserManagement: React.FC = () => {
       name: "ID",
       selector: (row) => row.id,
       sortable: true,
-      width: "65px",
+      width: "5%",
+      minWidth: "60px",
     },
     {
       name: "Usuario",
       selector: (row) => row.username,
       sortable: true,
-      width: "150px",
+      width: "10%",
+      minWidth: "120px",
     },
     {
       name: "Nombre",
       selector: (row) => `${row.first_name} ${row.last_name}`,
       sortable: true,
-      width: "230px",
+      width: "18%",
+      minWidth: "180px",
       wrap: true,
     },
     {
       name: "Perfil",
       selector: (row) => row.groups?.join(", ") || "",
       sortable: true,
-      width: "150px",
-    },
-    {
-      name: "Empresa",
-      selector: (row) => {
-        const userCompanies = userCompaniesMap[row.id] || [];
-        return userCompanies.length ? 
-          userCompanies.map(cu => cu.company.name).join(", ") : 
-          "Sin empresa";
-      },
-      sortable: true,
-      cell: (row) => {
-        const userCompanies = userCompaniesMap[row.id] || [];
-        if (userCompanies.length === 0) {
-          return <span className="text-muted">Sin empresa</span>;
-        }
-        return (
-          <div style={{ whiteSpace: 'normal' }}>
-            {userCompanies.map((companyUser) => (
-              <span 
-                key={companyUser.company.id} 
-                className={`badge me-1 mb-1 ${
-                  companyUser.is_company_admin ? 'bg-primary' : 'bg-info'
-                }`}
-                title={companyUser.is_company_admin ? 'Administrador' : 'Usuario'}
-              >
-                {companyUser.company.name}
-              </span>
-            ))}
-          </div>
-        );
-      },
-      width: "200px",
+      width: "12%",
+      minWidth: "150px",
+      wrap: true,
+      cell: (row) => (
+        <div style={{ whiteSpace: 'normal' }}>
+          {row.groups?.join(", ") || ""}
+        </div>
+      ),
     },
     {
       name: "Email",
       selector: (row) => row.email,
       sortable: true,
-      width: "190px",
+      width: "15%",
+      minWidth: "180px",
     },
     {
       name: "Fecha Creación",
       selector: (row) => row.date_joined,
       sortable: true,
-      format: (row) => formatDate(row.date_joined),
-      width: "180px",
+      width: "15%",
+      minWidth: "160px",
+      wrap: true,
+      cell: (row) => (
+        <div style={{ whiteSpace: 'normal' }}>
+          {formatDate(row.date_joined)}
+        </div>
+      ),
     },
     {
       name: "Estado",
       selector: (row) => row.is_active,
       sortable: true,
-      width: "100px",
+      width: "7%",
+      minWidth: "90px",
+      wrap: true,
       cell: (row) => (
-        <span className={`badge ${row.is_active ? "bg-success" : "bg-danger"}`}>
-          {row.is_active ? "Activo" : "Inactivo"}
-        </span>
+        <div style={{ whiteSpace: 'normal' }}>
+          <span className={`badge ${row.is_active ? "bg-success" : "bg-danger"}`}>
+            {row.is_active ? "Activo" : "Inactivo"}
+          </span>
+        </div>
       ),
     },
     {
       name: "Acciones",
       cell: (row) => (
-        <div className="d-flex gap-2 justify-content-end">
+        <div className="d-flex gap-1 justify-content-center w-100">
           <button
-            className="btn btn-sm btn-outline-success"
+            className="btn btn-sm btn-outline-success p-1"
             onClick={() => handleViewProfile(row.id)}
             title="Ver información"
+            style={{ minWidth: '32px', height: '32px' }}
           >
             <Eye size={16} />
           </button>
           <button
-            className="btn btn-sm btn-outline-primary"
+            className="btn btn-sm btn-outline-primary p-1"
             onClick={() => handleEditClick(row.id)}
             title="Editar"
+            style={{ minWidth: '32px', height: '32px' }}
           >
             <Edit2 size={16} />
           </button>
           <button
-            className="btn btn-sm btn-outline-danger"
+            className="btn btn-sm btn-outline-danger p-1"
             onClick={() => handleDeleteClick(row.id)}
             title="Eliminar"
+            style={{ minWidth: '32px', height: '32px' }}
           >
             <Trash2 size={16} />
           </button>
         </div>
       ),
-      width: "170px", // Aumentado el ancho
-      right: true,
-    },
+      width: "18%",
+      minWidth: "150px",
+      center: true,
+    }
   ];
 
   return (
-    <div className="h-100">
+    <div className="h-100 w-100">
       <div className="mb-4">
         <h5 className="mb-1">Gestión de Usuarios</h5>
         <p className="text-muted small">
           Administración de usuarios del sistema
         </p>
       </div>
-  
+
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
         </div>
       )}
-  
+
       <CustomDataTable
         columns={columns}
         data={filteredUsers}
@@ -285,8 +260,6 @@ const UserManagement: React.FC = () => {
           </button>
         }
       />
-  
-      {/* Modal de confirmación de eliminación */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirmar Eliminación</Modal.Title>
@@ -304,8 +277,6 @@ const UserManagement: React.FC = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-  
-      {/* Toast */}
       <Toast
         show={showToast}
         onClose={() => setShowToast(false)}
@@ -328,7 +299,7 @@ const UserManagement: React.FC = () => {
         <Toast.Body>{toastMessage}</Toast.Body>
       </Toast>
     </div>
-  );  
+  );
 };
 
 export default UserManagement;

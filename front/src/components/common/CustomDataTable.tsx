@@ -128,7 +128,16 @@ function CustomDataTable<T>({
         paginationComponentOptions={paginationComponentOptions}
         progressPending={loading}
         progressComponent={<LoaderComponent />}
-        customStyles={customStyles}
+        customStyles={{
+          ...customStyles,
+          table: {
+            style: {
+              width: '100%',
+              minWidth: '100%',
+              backgroundColor: '#ffffff',
+            },
+          },
+        }}
         noDataComponent={<div className="p-3">No hay registros para mostrar</div>}
         striped
         responsive
